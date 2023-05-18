@@ -1,7 +1,7 @@
 Для использования:
 
 **install c++ compiler**:  
-_git push --set-upstream origin main_
+_sudo apt install build-essential_
 
 **компилирование**:  
 _make build_

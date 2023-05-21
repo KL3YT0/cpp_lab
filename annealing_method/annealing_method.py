@@ -38,7 +38,7 @@ def func(x):
 
 
 def get_next_rnd_value():
-    return np.random.uniform(-5, 5)
+    return np.random.uniform(X_MIN, X_MAX)
 
 
 def get_curr_prob(curr, prev, t):

@@ -31,7 +31,7 @@ class AntColony(object):
                 all_time_shortest_way = shortest_way
             self.pheromone * self.decay  # Испарение феромонов
 
-        return all_time_shortest_way[1]
+        return all_time_shortest_way
 
     # Добавление феромонов на участки по которым пробегали муравьи
     def distribution_pheromone(self, all_route, num_ants, shortest_way):
@@ -91,11 +91,26 @@ class AntColony(object):
 np.random.seed(7)
 distances = np.random.randint(1, 50, size=(20, 20))
 
-distances = np.array([[0, 2, 30, 9, 1],
-                     [4, 0, 47, 7, 7],
-                      [31, 33, 0, 33, 36],
-                      [20, 13, 16, 0, 28],
-                      [9, 36, 22, 22, 0]])
+#   1   2   3   4   5
+# 1[0,  2,  30, 9,  1],
+# 2[4,  0,  47, 7,  7],
+# 3[31, 33, 0,  33, 36],
+# 4[20, 13, 16, 0,  28],
+# 5[9,  36, 22, 22, 0]])
+
+distances = np.array([
+                     [0,  2,  30, 9,  1],
+                     [4,  0,  47, 7,  7],
+                     [31, 33, 0,  33, 36],
+                     [20, 13, 16, 0,  28],
+                     [9,  36, 22, 22, 0]
+                     ])
+
+# 0 2 30 9 1
+# 4 0 47 7 7
+# 31 33 0 33 36
+# 20 13 16 0 28
+# 9 36 22 22 0
 
 i = 0
 j = 0
@@ -108,4 +123,15 @@ for p in range(len(distances)):
 
 ant_colony = AntColony(distances, 5, 100, 0.95, alpha=1, beta=2)
 
-print(ant_colony.run())
+res = ant_colony.run()
+
+print(res)
+
+res_view = []
+
+for el in res[0]:
+    res_view.append((el[0] + 1, el[1] + 1))
+
+res[1]
+
+print(res_view)

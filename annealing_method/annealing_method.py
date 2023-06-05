@@ -52,7 +52,7 @@ def should_update_value(curr, prev, t):
 def draw_value(x, line=None):
     if (line):
         line.remove()
-    line = ax.axvline(x=x, color='b', label='curr_x')
+    line = ax.axvline(x=x, color='g', label='curr_x', linewidth=0.5)
     fig.canvas.draw()
     plt.pause(0.001)
     return line

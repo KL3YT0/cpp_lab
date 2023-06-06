@@ -6,16 +6,14 @@ from numpy.random import choice as np_choice
 class AntColony(object):
     def __init__(self, distances, num_ants, num_interations, decay, alpha=1, beta=1):
 
-        self.distances = distances								# Матрица расстояний
-        self.pheromone = np.ones(self.distances.shape) / \
-            len(distances)				# Матрица феромонов
-        self.all_city = range(len(distances))							# Все города
-        self.num_ants = num_ants								# Количество муравьёв (int)
-        self.num_interations = num_interations							# Кол-во интераций (int)
-        self.decay = decay									# Коэффициент испарения (float)
-        self.alpha = alpha									# alpha	(float)
-        self.beta = beta									# betta	(float)
-    # Основная функция
+        self.distances = distances
+        self.pheromone = np.ones(self.distances.shape) * 0.2
+        self.all_city = range(len(distances))
+        self.num_ants = num_ants
+        self.num_interations = num_interations
+        self.decay = decay
+        self.alpha = alpha
+        self.beta = beta
 
     def run(self):
         shortest_way = None
@@ -26,39 +24,32 @@ class AntColony(object):
                 all_route, self.num_ants, shortest_way=shortest_way)
             shortest_way = min(all_route, key=lambda x: x[1])
 
-            # Нахождение самого короткого пути
             if (shortest_way[1] < all_time_shortest_way[1]):
                 all_time_shortest_way = shortest_way
-            self.pheromone * self.decay  # Испарение феромонов
-
+            self.pheromone * self.decay 
+        
         return all_time_shortest_way
 
-    # Добавление феромонов на участки по которым пробегали муравьи
     def distribution_pheromone(self, all_route, num_ants, shortest_way):
-        # Вход: (Все маршруты муравьёв в этой итерации, количество муравьёв, кротчайший путь)
         sorted_way = sorted(all_route, key=lambda x: x[1])
         for way, dist in sorted_way[:num_ants]:
             for move in way:
                 self.pheromone[move] += 1/self.distances[move]
 
-    # Считает длину пути муравья Вход:(Маршрут муравья)
     def gen_path_dist(self, way):
         total_distance = 0
         for l in way:
             total_distance += self.distances[l]
-        return total_distance				# Выход: (Длина маршрута)
+        return total_distance
 
-    # Формируем маршруты всех муравёв
     def gen_all_route(self):
         all_route = []
         for i in range(self.num_ants):
-            # Город отправления.       Чтобы город отправления ждя каждого муравья выбирался рандомно: rn.randrange(0, len(self.distances))
             way = self.gen_way(0)
             all_route.append((way, self.gen_path_dist(way)))
-        # Выход: (список маршрутов всех муравьёв и его длина)
+
         return all_route
 
-    # Формируем муршрут каждого муравья
     def gen_way(self, start):
         way = []
         visited = set()
@@ -70,41 +61,69 @@ class AntColony(object):
             way.append((prev, move))
             prev = move
             visited.add(move)
-        way.append((prev, start))  # Возврат в начальную точку
-        return way				# Выход: (список маршрута муравья)
+        way.append((prev, start))
+        return way
 
-    # Функция выбора следующего города Вход: ( Массив феромонов в следующие города, Массив расстояний до след городов, кортеж с первым городом)
     def pick_move(self, pheromone, dist, visited):
         pheromone = np.copy(pheromone)
         pheromone[list(visited)] = 0
 
-        # Вероятность перехода из вершины i в вершину j
         choice = pheromone ** self.alpha * ((1.0/dist) ** self.beta)
+        
+        norm_choice = choice / choice.sum()
 
-        norm_choice = choice / choice.sum()		# Нормирование
-
-        move = np_choice(self.all_city, 1, p=norm_choice)[0]		# Выбор маршрута
+        move = np_choice(self.all_city, 1, p=norm_choice)[0]
         return move
 
+
+def greedy(distances):
+    curr_vertex = 0
+    way = []
+
+    not_visited = []
+
+    for i in range(len(distances)):
+        not_visited.append(i)
+
+    visited = [0]
+    not_visited.remove(0)
+
+    
+    while (len(not_visited) > 0):
+        next_vertex = not_visited[0]
+        local_optimum = distances[curr_vertex, next_vertex]
+
+        for vertex in not_visited:
+            if (distances[curr_vertex, vertex] < local_optimum):
+                local_optimum = distances[curr_vertex, vertex]
+                next_vertex = vertex
+
+        way.append((curr_vertex, next_vertex))
+        curr_vertex = next_vertex
+        visited.append(curr_vertex)
+        not_visited.remove(curr_vertex)
+
+    way.append((curr_vertex, 0))
+
+    l = 0
+
+    for p in way:
+        l += distances[p[0], p[1]]
+
+    return [way, l]
 
 # Входные данные
 np.random.seed(7)
 distances = np.random.randint(1, 50, size=(20, 20))
 
-#   1   2   3   4   5
-# 1[0,  2,  30, 9,  1],
-# 2[4,  0,  47, 7,  7],
-# 3[31, 33, 0,  33, 36],
-# 4[20, 13, 16, 0,  28],
-# 5[9,  36, 22, 22, 0]])
-
-distances = np.array([
-                     [0,  2,  30, 9,  1],
-                     [4,  0,  47, 7,  7],
-                     [31, 33, 0,  33, 36],
-                     [20, 13, 16, 0,  28],
-                     [9,  36, 22, 22, 0]
-                     ])
+distances = np.array(
+[
+    [0,  2,  30, 9,  1],
+    [4,  0,  47, 7,  7],
+    [31, 33, 0,  33, 36],
+    [20, 13, 16, 0,  28],
+    [9,  36, 22, 22, 0]
+])
 
 # 0 2 30 9 1
 # 4 0 47 7 7
@@ -123,15 +142,20 @@ for p in range(len(distances)):
 
 ant_colony = AntColony(distances, 5, 100, 0.95, alpha=1, beta=2)
 
-res = ant_colony.run()
+way1, l1 = ant_colony.run()
 
-print(res)
+way1_view = []
 
-res_view = []
+for v in way1:
+    way1_view.append((v[0] + 1, v[1] + 1))
 
-for el in res[0]:
-    res_view.append((el[0] + 1, el[1] + 1))
+print('Муравьиный алгоритм :\n маршрут: {0} \n расстояние: {1}'.format(way1_view, l1))
 
-res[1]
+way2, l2 = greedy(distances)
 
-print(res_view)
+way2_view = []
+
+for v in way2:
+    way2_view.append((v[0] + 1, v[1] + 1))
+
+print('Жадный алгоритм :\n маршрут: {0} \n расстояние: {1}'.format(way2_view, l2))

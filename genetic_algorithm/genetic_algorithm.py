@@ -3,7 +3,9 @@ import random
 
 
 def func(x):
-    return exp(2*sin(5*x))+0.5*sin(x)
+    # return exp(2*sin(5*x))+0.5*sin(x)
+    # return sin(x / 2)
+    return sin(x * 2) / 10 + x / 20
 
 
 def get_rnd_in_range(a, b):
@@ -96,7 +98,7 @@ def alg(x_min, x_max, eps=0.000001):
     population, fitness = sort(population, fitness)
 
     while (fabs(fitness[0]) > eps and iter < 20000):
-        print(fabs(fitness[0]))
+        # print(fabs(fitness[0]))
         iter += 1
         population = crossover(population, eps, x_min, x_max)
 
@@ -105,7 +107,9 @@ def alg(x_min, x_max, eps=0.000001):
 
         population, fitness = sort(population, fitness)
 
-    return [population[0], iter]
+    return [population[0], fitness[0], iter]
 
 
-print(alg(0.0, 5.0, 0.000001))
+x, y, iter = alg(0.0, 20.0, 0.000001)
+
+print('x = {0}, y = {1}, iter = {2}'.format(x, y, iter))
